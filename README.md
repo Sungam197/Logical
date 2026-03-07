@@ -4,6 +4,13 @@ Logical is a Logic gate simulator, made to be a minimalistic, easy-to-use softwa
 I made this because i was looking for a good logic ciruit simulator, the closest one i could find was logicly. i names logical after this, because im kinda uncreative. so sue me. but i didnt want to pay $60 for this, and the web version didnt have save/load function. so i made one. in my opinion, it looks way better then logicly.
 
 ------
+# IMPORTANT!!! Install Instructions
+(This only works on windows with powershell, most computers have it.)
+
+- After downloading the sourcecode.zip from releases, run the build script file. after that is finished, in the fodler should be another dist folder comtaining the exe, run that, and there you go.
+- after running the build script, you can pin it to start, and treat it like any other software.
+------
+
 **controlls**
 
 - Mouse left click on pins: connect wires
