@@ -5,10 +5,13 @@ I made this because i was looking for a good logic ciruit simulator, the closest
 
 ------
 # IMPORTANT!!! Install Instructions
-(This only works on windows with powershell, most computers have it.)
 
-- After downloading the sourcecode.zip from releases, run the build script file. after that is finished, in the fodler should be another dist folder comtaining the exe, run that, and there you go.
-- after running the build script, you can pin it to start, and treat it like any other software.
+(software is windows only, planning to chnage in the future)
+- go to releases, and pick the latest one.
+- if you dont have the software yet, download the installer.
+- if you have the software already, downlaod the updater.
+- preeety self explanatory from there...
+
 ------
 
 **controlls**
