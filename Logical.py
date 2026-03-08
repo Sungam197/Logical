@@ -20,13 +20,21 @@ def resource_path(name):
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), name)
 
 display_info = pygame.display.Info()
-pygame.display.set_caption("Logical")
-try:
-    pygame.display.set_icon(pygame.image.load(resource_path("logo.ico")))
-except Exception:
-    pass
 screen = pygame.display.set_mode((display_info.current_w, display_info.current_h), pygame.NOFRAME)
 WIDTH, HEIGHT = screen.get_size()
+
+
+def apply_window_branding():
+    pygame.display.set_caption("Logical")
+    for icon_name in ("logo.ico", "logo.png"):
+        try:
+            pygame.display.set_icon(pygame.image.load(resource_path(icon_name)))
+            break
+        except Exception:
+            continue
+
+
+apply_window_branding()
 
 BG = (18, 18, 22)
 PANEL = (28, 30, 36)
@@ -46,6 +54,22 @@ MCOL_RED = (235, 90, 90)
 MCOL_GREEN = (95, 220, 120)
 MCOL_BLUE = (95, 155, 240)
 MCOLORS = [MCOL_RED, MCOL_GREEN, MCOL_BLUE]
+DIALOG_BORDER = (90, 90, 110)
+DIALOG_BORDER_SOFT = (110, 110, 130)
+TOGGLE_OFF = (90, 90, 110)
+TOGGLE_ON = (70, 150, 110)
+TOGGLE_KNOB = (230, 230, 235)
+SLIDER_TRACK = (80, 80, 95)
+SLIDER_KNOB = (170, 190, 230)
+BUTTON_NEUTRAL = (80, 80, 100)
+BUTTON_ACCENT = (80, 90, 110)
+BUTTON_CLOCK = (95, 85, 70)
+BUTTON_CLOCK_HOVER = (120, 105, 85)
+BUTTON_DANGER = (120, 70, 70)
+MENU_TILE = (60, 60, 70)
+MENU_TILE_HOVER = (80, 90, 110)
+MENU_SPLIT = (110, 110, 125)
+MENU_BORDER = (90, 90, 105)
 
 PIN_RADIUS = 8
 PIN_HIT = 16
@@ -279,6 +303,7 @@ settings_t = 0.0
 settings_target = 0.0
 straight_wires = True
 settings_toggle_t = 0.0
+light_mode = False
 
 grid_step = 25
 snap_to_grid = False
@@ -296,6 +321,12 @@ multicolor_outputs = False
 settings_anim = {}
 settings_slider_rects = {}
 settings_drag_slider = None
+settings_scroll = 0.0
+settings_scroll_target = 0.0
+settings_scroll_max = 0.0
+help_scroll = 0.0
+help_scroll_target = 0.0
+help_scroll_max = 0.0
 
 selecting = False
 select_start = (0, 0)
@@ -335,6 +366,78 @@ def lerp(a, b, t):
 
 def lerp_color(c1, c2, t):
     return (int(lerp(c1[0], c2[0], t)), int(lerp(c1[1], c2[1], t)), int(lerp(c1[2], c2[2], t)))
+
+
+def apply_theme():
+    global BG, PANEL, GRID, WHITE, GRAY, GREEN, RED, YELLOW, BLUE, ACCENT, HOVER, HOVER_PIN, WIRE_ON, WIRE_OFF
+    global DIALOG_BORDER, DIALOG_BORDER_SOFT, TOGGLE_OFF, TOGGLE_ON, TOGGLE_KNOB, SLIDER_TRACK, SLIDER_KNOB
+    global BUTTON_NEUTRAL, BUTTON_ACCENT, BUTTON_CLOCK, BUTTON_CLOCK_HOVER, BUTTON_DANGER
+    global MENU_TILE, MENU_TILE_HOVER, MENU_SPLIT, MENU_BORDER
+    if light_mode:
+        BG = (252, 252, 244)
+        PANEL = (255, 251, 225)
+        GRID = (236, 230, 188)
+        WHITE = (36, 36, 28)
+        GRAY = (108, 104, 88)
+        GREEN = (55, 165, 95)
+        RED = (210, 80, 75)
+        YELLOW = (243, 198, 72)
+        BLUE = (205, 165, 55)
+        ACCENT = (233, 188, 58)
+        HOVER = (250, 212, 95)
+        HOVER_PIN = (255, 200, 95)
+        WIRE_ON = (244, 188, 52)
+        WIRE_OFF = (150, 145, 128)
+        DIALOG_BORDER = (196, 176, 104)
+        DIALOG_BORDER_SOFT = (214, 194, 120)
+        TOGGLE_OFF = (176, 164, 124)
+        TOGGLE_ON = (226, 182, 56)
+        TOGGLE_KNOB = (255, 251, 240)
+        SLIDER_TRACK = (188, 176, 130)
+        SLIDER_KNOB = (236, 194, 74)
+        BUTTON_NEUTRAL = (205, 186, 118)
+        BUTTON_ACCENT = (222, 190, 84)
+        BUTTON_CLOCK = (221, 180, 76)
+        BUTTON_CLOCK_HOVER = (236, 194, 92)
+        BUTTON_DANGER = (214, 122, 102)
+        MENU_TILE = (242, 224, 152)
+        MENU_TILE_HOVER = (247, 205, 98)
+        MENU_SPLIT = (206, 176, 88)
+        MENU_BORDER = (205, 178, 102)
+    else:
+        BG = (18, 18, 22)
+        PANEL = (28, 30, 36)
+        GRID = (40, 40, 48)
+        WHITE = (230, 230, 235)
+        GRAY = (140, 140, 150)
+        GREEN = (60, 220, 120)
+        RED = (220, 80, 80)
+        YELLOW = (240, 220, 120)
+        BLUE = (90, 160, 255)
+        ACCENT = (70, 200, 255)
+        HOVER = (120, 190, 255)
+        HOVER_PIN = (255, 220, 150)
+        WIRE_ON = YELLOW
+        WIRE_OFF = (160, 160, 175)
+        DIALOG_BORDER = (90, 90, 110)
+        DIALOG_BORDER_SOFT = (110, 110, 130)
+        TOGGLE_OFF = (90, 90, 110)
+        TOGGLE_ON = (70, 150, 110)
+        TOGGLE_KNOB = (230, 230, 235)
+        SLIDER_TRACK = (80, 80, 95)
+        SLIDER_KNOB = (170, 190, 230)
+        BUTTON_NEUTRAL = (80, 80, 100)
+        BUTTON_ACCENT = (80, 90, 110)
+        BUTTON_CLOCK = (95, 85, 70)
+        BUTTON_CLOCK_HOVER = (120, 105, 85)
+        BUTTON_DANGER = (120, 70, 70)
+        MENU_TILE = (60, 60, 70)
+        MENU_TILE_HOVER = (80, 90, 110)
+        MENU_SPLIT = (110, 110, 125)
+        MENU_BORDER = (90, 90, 105)
+
+
+apply_theme()
 
 
 def snap_world(pos):
@@ -417,7 +520,7 @@ def draw_grid():
 
 
 def draw_label():
-    label = base_font.render("Logical", True, ACCENT)
+    label = base_font.render("Logical v2.5.4", True, ACCENT)
     screen.blit(label, (12, 12))
 
 
@@ -647,13 +750,16 @@ def draw_gates(hover_gate, hover_pin):
             color = g.output_color if g.output else (130, 70, 70)
         if g.output and g.type not in ("INPUT", "BUTTON", "CLOCK", "DELAY", "BUFFER", "OUTPUT"):
             color = (min(color[0] + 20, 255), min(color[1] + 25, 255), min(color[2] + 20, 255))
+        if light_mode:
+            mix = 0.32 if g.type != "OUTPUT" else 0.20
+            color = lerp_color(color, (255, 246, 212), mix)
 
         color = lerp_color(color, BG, g.delete_t)
         rect = pygame.Rect(int(srx), int(sry), int(rw), int(rh))
         radius = max(2, int(8 * zoom))
         pygame.draw.rect(screen, color, rect, border_radius=radius)
 
-        outline = (100, 100, 120)
+        outline = (155, 145, 115) if light_mode else (100, 100, 120)
         outline = lerp_color(outline, HOVER, g.hover_t)
         sel_t = clamp(g.select_t * selection_brightness, 0.0, 1.0)
         outline = lerp_color(outline, BLUE, sel_t)
@@ -735,10 +841,14 @@ def draw_gate_preview(gtype, pos_screen, t):
         color = (95, 170, 190, 90)
     if gtype == "OUTPUT":
         color = (180, 90, 90, 90)
+    if light_mode:
+        c = lerp_color(color[:3], (255, 244, 210), 0.28)
+        color = (c[0], c[1], c[2], color[3])
     alpha = int(140 * t)
     color = (*color[:3], alpha)
     pygame.draw.rect(surf, color, (5, 5, 80, 50), border_radius=8)
-    pygame.draw.rect(surf, (160, 160, 180, alpha), (5, 5, 80, 50), 2, border_radius=8)
+    preview_outline = (195, 180, 130) if light_mode else (160, 160, 180)
+    pygame.draw.rect(surf, (*preview_outline, alpha), (5, 5, 80, 50), 2, border_radius=8)
     txt = base_font.render(gtype, True, (240, 240, 245))
     txt.set_alpha(int(200 * t))
     surf.blit(txt, (45 - txt.get_width() // 2, 25 - 8))
@@ -777,7 +887,7 @@ def draw_gate_menu(pos_screen):
     alpha = int(220 * menu_t)
     panel = pygame.Surface((total_w + 20, total_h + 20), pygame.SRCALPHA)
     pygame.draw.rect(panel, (*PANEL, alpha), (0, 0, total_w + 20, total_h + 20), border_radius=12)
-    pygame.draw.rect(panel, (80, 80, 95, alpha), (0, 0, total_w + 20, total_h + 20), 1, border_radius=12)
+    pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, alpha), (0, 0, total_w + 20, total_h + 20), 1, border_radius=12)
     screen.blit(panel, (x0 - 10, y0 - 10))
 
     mx, my = pygame.mouse.get_pos()
@@ -803,15 +913,15 @@ def draw_gate_menu(pos_screen):
             hover_right = right.collidepoint(mx, my)
 
             tile = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
-            pygame.draw.rect(tile, (60, 60, 70, alpha), tile.get_rect(), border_radius=10)
-            pygame.draw.rect(tile, (90, 90, 105, alpha), tile.get_rect(), 1, border_radius=10)
+            pygame.draw.rect(tile, (*MENU_TILE, alpha), tile.get_rect(), border_radius=10)
+            pygame.draw.rect(tile, (*MENU_BORDER, alpha), tile.get_rect(), 1, border_radius=10)
 
             if hover_left:
-                pygame.draw.rect(tile, (80, 90, 110, alpha), pygame.Rect(0, 0, rect.w // 2, rect.h), border_radius=10)
+                pygame.draw.rect(tile, (*MENU_TILE_HOVER, alpha), pygame.Rect(0, 0, rect.w // 2, rect.h), border_radius=10)
             if hover_right:
-                pygame.draw.rect(tile, (80, 90, 110, alpha), pygame.Rect(rect.w // 2, 0, rect.w // 2, rect.h), border_radius=10)
+                pygame.draw.rect(tile, (*MENU_TILE_HOVER, alpha), pygame.Rect(rect.w // 2, 0, rect.w // 2, rect.h), border_radius=10)
 
-            pygame.draw.line(tile, (110, 110, 125, alpha), (rect.w // 2, 8), (rect.w // 2, rect.h - 8), 2)
+            pygame.draw.line(tile, (*MENU_SPLIT, alpha), (rect.w // 2, 8), (rect.w // 2, rect.h - 8), 2)
 
             if g == "INPUT_BUTTON":
                 label1, label2 = "INPUT", "BUTTON"
@@ -839,12 +949,12 @@ def draw_gate_menu(pos_screen):
             continue
 
         hover = rect.collidepoint(mx, my)
-        color = (60, 60, 70)
+        color = MENU_TILE
         if hover:
-            color = (80, 90, 110)
+            color = MENU_TILE_HOVER
         tile = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
         pygame.draw.rect(tile, (*color, alpha), tile.get_rect(), border_radius=10)
-        pygame.draw.rect(tile, (90, 90, 105, alpha), tile.get_rect(), 1, border_radius=10)
+        pygame.draw.rect(tile, (*MENU_BORDER, alpha), tile.get_rect(), 1, border_radius=10)
 
         label = base_small.render(g, True, WHITE)
         label.set_alpha(alpha)
@@ -860,10 +970,10 @@ def draw_gate_menu(pos_screen):
     clock_rect = pygame.Rect(note_x + note_w + pad, note_y, note_w, note_h)
     note_alpha = int(255 * menu_t)
     note_hover = note_rect.collidepoint(mx, my)
-    note_color = (60, 60, 70) if not note_hover else (80, 90, 110)
+    note_color = MENU_TILE if not note_hover else MENU_TILE_HOVER
     note_tile = pygame.Surface((note_rect.w, note_rect.h), pygame.SRCALPHA)
     pygame.draw.rect(note_tile, (*note_color, note_alpha), note_tile.get_rect(), border_radius=10)
-    pygame.draw.rect(note_tile, (90, 90, 105, note_alpha), note_tile.get_rect(), 1, border_radius=10)
+    pygame.draw.rect(note_tile, (*MENU_BORDER, note_alpha), note_tile.get_rect(), 1, border_radius=10)
     note_label = base_small.render("NOTE", True, WHITE)
     note_label.set_alpha(note_alpha)
     note_tile.blit(
@@ -874,10 +984,10 @@ def draw_gate_menu(pos_screen):
     items.append(("NOTE", note_rect))
 
     clock_hover = clock_rect.collidepoint(mx, my)
-    clock_color = (60, 60, 70) if not clock_hover else (80, 90, 110)
+    clock_color = MENU_TILE if not clock_hover else MENU_TILE_HOVER
     clock_tile = pygame.Surface((clock_rect.w, clock_rect.h), pygame.SRCALPHA)
     pygame.draw.rect(clock_tile, (*clock_color, note_alpha), clock_tile.get_rect(), border_radius=10)
-    pygame.draw.rect(clock_tile, (90, 90, 105, note_alpha), clock_tile.get_rect(), 1, border_radius=10)
+    pygame.draw.rect(clock_tile, (*MENU_BORDER, note_alpha), clock_tile.get_rect(), 1, border_radius=10)
     clock_label = base_small.render("CLOCK", True, WHITE)
     clock_label.set_alpha(note_alpha)
     clock_tile.blit(
@@ -1078,8 +1188,12 @@ def draw_notes():
         override = note_edit_text if note_edit_id == n["id"] else None
         rect, lines, ranges, line_h, pad, font = note_layout(n, override)
         alpha = int(255 * (1.0 - n["delete_t"]))
-        base = (55, 55, 70)
-        outline = (95, 95, 115)
+        if light_mode:
+            base = (255, 245, 206)
+            outline = (198, 176, 104)
+        else:
+            base = (55, 55, 70)
+            outline = (95, 95, 115)
         outline = lerp_color(outline, HOVER, n["hover_t"])
         sel_t = clamp(n["select_t"] * selection_brightness, 0.0, 1.0)
         outline = lerp_color(outline, BLUE, sel_t)
@@ -1161,7 +1275,7 @@ def draw_confirm_dialog():
     scale = 0.92 + 0.08 * ease
     panel = pygame.Surface((w, h), pygame.SRCALPHA)
     pygame.draw.rect(panel, (*PANEL, alpha), (0, 0, w, h), border_radius=14)
-    pygame.draw.rect(panel, (90, 90, 110, alpha), (0, 0, w, h), 2, border_radius=14)
+    pygame.draw.rect(panel, (*DIALOG_BORDER, alpha), (0, 0, w, h), 2, border_radius=14)
 
     title = base_font.render("Start a new file?", True, WHITE)
     title.set_alpha(alpha)
@@ -1182,13 +1296,13 @@ def draw_confirm_dialog():
         rx = bx + i * (btn_w + gap)
         rect = pygame.Rect(rx, by, btn_w, btn_h)
         hover = rect.move(x0, y0).collidepoint(mx, my)
-        color = (70, 90, 120) if key == "save" else (70, 70, 90)
+        color = BUTTON_ACCENT if key == "save" else BUTTON_NEUTRAL
         if key == "cancel":
-            color = (80, 70, 70)
+            color = BUTTON_DANGER
         if hover:
             color = (min(color[0] + 15, 255), min(color[1] + 15, 255), min(color[2] + 15, 255))
         pygame.draw.rect(panel, (*color, alpha), rect, border_radius=8)
-        pygame.draw.rect(panel, (110, 110, 130, alpha), rect, 1, border_radius=8)
+        pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, alpha), rect, 1, border_radius=8)
         txt = base_small.render(label, True, WHITE)
         txt.set_alpha(alpha)
         panel.blit(txt, (rect.centerx - txt.get_width() // 2, rect.centery - txt.get_height() // 2))
@@ -1222,7 +1336,7 @@ def draw_exit_confirm_dialog():
     scale = 0.92 + 0.08 * ease
     panel = pygame.Surface((w, h), pygame.SRCALPHA)
     pygame.draw.rect(panel, (*PANEL, alpha), (0, 0, w, h), border_radius=14)
-    pygame.draw.rect(panel, (90, 90, 110, alpha), (0, 0, w, h), 2, border_radius=14)
+    pygame.draw.rect(panel, (*DIALOG_BORDER, alpha), (0, 0, w, h), 2, border_radius=14)
 
     title = base_font.render("Exit Logical?", True, WHITE)
     title.set_alpha(alpha)
@@ -1243,13 +1357,13 @@ def draw_exit_confirm_dialog():
         rx = bx + i * (btn_w + gap)
         rect = pygame.Rect(rx, by, btn_w, btn_h)
         hover = rect.move(x0, y0).collidepoint(mx, my)
-        color = (70, 90, 120) if key == "save" else (70, 70, 90)
+        color = BUTTON_ACCENT if key == "save" else BUTTON_NEUTRAL
         if key == "cancel":
-            color = (80, 70, 70)
+            color = BUTTON_DANGER
         if hover:
             color = (min(color[0] + 15, 255), min(color[1] + 15, 255), min(color[2] + 15, 255))
         pygame.draw.rect(panel, (*color, alpha), rect, border_radius=8)
-        pygame.draw.rect(panel, (110, 110, 130, alpha), rect, 1, border_radius=8)
+        pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, alpha), rect, 1, border_radius=8)
         txt = base_small.render(label, True, WHITE)
         txt.set_alpha(alpha)
         panel.blit(txt, (rect.centerx - txt.get_width() // 2, rect.centery - txt.get_height() // 2))
@@ -1283,7 +1397,7 @@ def draw_save_scope_dialog():
     scale = 0.92 + 0.08 * ease
     panel = pygame.Surface((w, h), pygame.SRCALPHA)
     pygame.draw.rect(panel, (*PANEL, alpha), (0, 0, w, h), border_radius=14)
-    pygame.draw.rect(panel, (90, 90, 110, alpha), (0, 0, w, h), 2, border_radius=14)
+    pygame.draw.rect(panel, (*DIALOG_BORDER, alpha), (0, 0, w, h), 2, border_radius=14)
 
     title = base_font.render("Save File", True, WHITE)
     title.set_alpha(alpha)
@@ -1304,11 +1418,11 @@ def draw_save_scope_dialog():
         rx = bx + i * (btn_w + gap)
         rect = pygame.Rect(rx, by, btn_w, btn_h)
         hover = rect.move(x0, y0).collidepoint(mx, my)
-        color = (70, 90, 120) if key != "cancel" else (80, 70, 70)
+        color = BUTTON_ACCENT if key != "cancel" else BUTTON_DANGER
         if hover:
             color = (min(color[0] + 15, 255), min(color[1] + 15, 255), min(color[2] + 15, 255))
         pygame.draw.rect(panel, (*color, alpha), rect, border_radius=8)
-        pygame.draw.rect(panel, (110, 110, 130, alpha), rect, 1, border_radius=8)
+        pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, alpha), rect, 1, border_radius=8)
         txt = base_small.render(label, True, WHITE)
         txt.set_alpha(alpha)
         panel.blit(txt, (rect.centerx - txt.get_width() // 2, rect.centery - txt.get_height() // 2))
@@ -1349,7 +1463,7 @@ def draw_clock_dialog():
     scale = 0.92 + 0.08 * ease
     panel = pygame.Surface((w, h), pygame.SRCALPHA)
     pygame.draw.rect(panel, (*PANEL, alpha), (0, 0, w, h), border_radius=14)
-    pygame.draw.rect(panel, (90, 90, 110, alpha), (0, 0, w, h), 2, border_radius=14)
+    pygame.draw.rect(panel, (*DIALOG_BORDER, alpha), (0, 0, w, h), 2, border_radius=14)
 
     def item_anim(idx, duration=0.35):
         delay = idx * 0.06
@@ -1379,11 +1493,11 @@ def draw_clock_dialog():
         ease_i, slide_i, alpha_i = item_anim(2 + i)
         rect = pygame.Rect(row_x + i * (bw + gap), row_y + slide_i, bw, bh)
         hover = rect.move(x0, y0).collidepoint(mx, my)
-        color = (75, 85, 105)
+        color = BUTTON_ACCENT
         if hover:
-            color = (95, 105, 125)
+            color = tuple(min(c + 20, 255) for c in color)
         pygame.draw.rect(panel, (*color, alpha_i), rect, border_radius=8)
-        pygame.draw.rect(panel, (110, 110, 130, alpha_i), rect, 1, border_radius=8)
+        pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, alpha_i), rect, 1, border_radius=8)
         txt = base_small.render(label, True, WHITE)
         txt.set_alpha(alpha_i)
         panel.blit(txt, (rect.centerx - txt.get_width() // 2, rect.centery - txt.get_height() // 2))
@@ -1399,11 +1513,11 @@ def draw_clock_dialog():
         ease_i, slide_i, alpha_i = item_anim(6 + i)
         rect = pygame.Rect(abx + i * (abw + 16), aby + slide_i, abw, 40)
         hover = rect.move(x0, y0).collidepoint(mx, my)
-        color = (70, 110, 85) if key == "toggle_run" else (80, 80, 100)
+        color = TOGGLE_ON if key == "toggle_run" else BUTTON_NEUTRAL
         if hover:
-            color = (min(color[0] + 15, 255), min(color[1] + 15, 255), min(color[2] + 15, 255))
+            color = tuple(min(c + 15, 255) for c in color)
         pygame.draw.rect(panel, (*color, alpha_i), rect, border_radius=8)
-        pygame.draw.rect(panel, (110, 110, 130, alpha_i), rect, 1, border_radius=8)
+        pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, alpha_i), rect, 1, border_radius=8)
         txt = base_small.render(label, True, WHITE)
         txt.set_alpha(alpha_i)
         panel.blit(txt, (rect.centerx - txt.get_width() // 2, rect.centery - txt.get_height() // 2))
@@ -1445,7 +1559,7 @@ def draw_delay_dialog():
     scale = 0.92 + 0.08 * ease
     panel = pygame.Surface((w, h), pygame.SRCALPHA)
     pygame.draw.rect(panel, (*PANEL, alpha), (0, 0, w, h), border_radius=14)
-    pygame.draw.rect(panel, (90, 90, 110, alpha), (0, 0, w, h), 2, border_radius=14)
+    pygame.draw.rect(panel, (*DIALOG_BORDER, alpha), (0, 0, w, h), 2, border_radius=14)
 
     def item_anim(idx, duration=0.35):
         delay = idx * 0.06
@@ -1474,9 +1588,9 @@ def draw_delay_dialog():
         ease_i, slide_i, alpha_i = item_anim(2 + i)
         rect = pygame.Rect(row_x + i * (bw + gap), row_y + slide_i, bw, bh)
         hover = rect.move(x0, y0).collidepoint(mx, my)
-        color = (95, 85, 70) if not hover else (120, 105, 85)
+        color = BUTTON_CLOCK if not hover else BUTTON_CLOCK_HOVER
         pygame.draw.rect(panel, (*color, alpha_i), rect, border_radius=8)
-        pygame.draw.rect(panel, (130, 120, 105, alpha_i), rect, 1, border_radius=8)
+        pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, alpha_i), rect, 1, border_radius=8)
         txt = base_small.render(label, True, WHITE)
         txt.set_alpha(alpha_i)
         panel.blit(txt, (rect.centerx - txt.get_width() // 2, rect.centery - txt.get_height() // 2))
@@ -1486,9 +1600,9 @@ def draw_delay_dialog():
     ease_c, slide_c, alpha_c = item_anim(6)
     close_rect = pygame.Rect(w // 2 - 70, h - 58 + slide_c, 140, 38)
     hover = close_rect.move(x0, y0).collidepoint(mx, my)
-    color = (80, 80, 100) if not hover else (100, 100, 120)
+    color = BUTTON_NEUTRAL if not hover else tuple(min(c + 20, 255) for c in BUTTON_NEUTRAL)
     pygame.draw.rect(panel, (*color, alpha_c), close_rect, border_radius=8)
-    pygame.draw.rect(panel, (110, 110, 130, alpha_c), close_rect, 1, border_radius=8)
+    pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, alpha_c), close_rect, 1, border_radius=8)
     txt = base_small.render("Close", True, WHITE)
     txt.set_alpha(alpha_c)
     panel.blit(txt, (close_rect.centerx - txt.get_width() // 2, close_rect.centery - txt.get_height() // 2))
@@ -1501,7 +1615,7 @@ def draw_delay_dialog():
 
 
 def draw_help_dialog():
-    global help_t
+    global help_t, help_scroll, help_scroll_target, help_scroll_max
     if not help_open and help_t <= 0.01:
         return {}
 
@@ -1517,48 +1631,90 @@ def draw_help_dialog():
     overlay.fill((0, 0, 0, int(120 * help_t)))
     screen.blit(overlay, (0, 0))
 
-    w, h = 560, 430
+    w, h = 640, 520
     x0 = WIDTH // 2 - w // 2
     y0 = HEIGHT // 2 - h // 2
     scale = 0.92 + 0.08 * ease
     panel = pygame.Surface((w, h), pygame.SRCALPHA)
     pygame.draw.rect(panel, (*PANEL, alpha), (0, 0, w, h), border_radius=14)
-    pygame.draw.rect(panel, (90, 90, 110, alpha), (0, 0, w, h), 2, border_radius=14)
+    pygame.draw.rect(panel, (*DIALOG_BORDER, alpha), (0, 0, w, h), 2, border_radius=14)
 
     title = base_font.render("Instructions", True, WHITE)
     title.set_alpha(alpha)
     panel.blit(title, (20, 18))
 
     lines = [
-        "Mouse: left click pins to wire, right click to delete/deselect",
-        "Mouse wheel: zoom",
-        "Right-drag: pan",
-        "Tab: settings",
+        "Left click empty space: open gate menu",
+        "Left click gate pin to start/finish wiring",
+        "Right click: delete hovered wire/gate/note or clear selection",
+        "Right drag: pan camera",
+        "Mouse wheel: zoom (or scroll open dialogs)",
+        "Middle double click: center view on all gates",
+        "Double click NOTE: edit note text",
+        "Double click CLOCK: open clock menu",
+        "Double click DELAY: open delay block menu",
+        "Hold BUTTON gate: output on while held",
+        "OUTPUT and BUFFER can be dragged like other gates",
+        "BUFFER pulses output only on input rising edge",
+        "R / T: rotate pin orientation clockwise / counter-clockwise",
+        "Backspace: delete selected gates/notes",
+        "Tab: open settings",
         "Esc: new file (save prompt)",
-        "Space: exit (save prompt)",
-        "Ctrl+S: save (segment/whole)  |  Ctrl+L: load",
-        "Ctrl+Z / Ctrl+Y: undo / redo",
-        "Ctrl+C / Ctrl+V: copy / paste selection",
-        "Ctrl+Shift+V: paste segment file at cursor",
-        "Backspace: delete selected",
-        "R / T: rotate pins",
-        "Left click empty: gate menu / place",
+        "Space: exit app (save prompt)",
+        "Ctrl+S: save (choose segment or whole file)",
+        "Ctrl+L: load whole file or segment file",
+        "Ctrl+C: copy selected gates/notes",
+        "Ctrl+V: paste copied selection at cursor",
+        "Ctrl+Shift+V: load and paste segment file at cursor",
+        "After paste: only pasted blocks stay selected",
+        "Settings are saved inside files and restored on load",
+        "Signal delay setting can be toggled globally",
+        "DELAY block uses its own delay value (ignores global delay switch)",
+        "Multicolor outputs (RGB) optional in settings",
+        "When RGB is on, output mixes active input colors",
     ]
-    y = 58
+    content_rect = pygame.Rect(18, 56, w - 36, h - 126)
+    pygame.draw.rect(panel, (*GRID, int(alpha * 0.35)), content_rect, border_radius=10)
+    pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, int(alpha * 0.75)), content_rect, 1, border_radius=10)
+
+    line_h = 24
+    content_h = content_rect.h - 14
+    total_h = len(lines) * line_h
+    help_scroll_max = max(0.0, float(total_h - content_h))
+    help_scroll_target = clamp(help_scroll_target, 0.0, help_scroll_max)
+    help_scroll += (help_scroll_target - help_scroll) * 0.22
+    if abs(help_scroll - help_scroll_target) < 0.25:
+        help_scroll = help_scroll_target
+
+    scroll_y = int(round(help_scroll))
+    prev_clip = panel.get_clip()
+    panel.set_clip(content_rect.inflate(-10, -8))
+    y = content_rect.y + 7 - scroll_y
     for line in lines:
-        txt = base_small.render(line, True, GRAY)
-        txt.set_alpha(alpha)
-        panel.blit(txt, (20, y))
-        y += 26
+        if y + line_h >= content_rect.y - 8 and y <= content_rect.bottom + 8:
+            txt = base_small.render(line, True, GRAY)
+            txt.set_alpha(alpha)
+            panel.blit(txt, (content_rect.x + 10, y))
+        y += line_h
+    panel.set_clip(prev_clip)
+
+    if help_scroll_max > 1.0:
+        track = pygame.Rect(content_rect.right - 10, content_rect.y + 8, 4, content_rect.h - 16)
+        pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, int(alpha * 0.7)), track, border_radius=2)
+        knob_h = max(22, int(track.h * (content_h / max(content_h + help_scroll_max, 1.0))))
+        knob_t = 0.0 if help_scroll_max <= 0 else (help_scroll / help_scroll_max)
+        knob_y = int(lerp(track.y, track.bottom - knob_h, knob_t))
+        knob = pygame.Rect(track.x - 2, knob_y, 8, knob_h)
+        pygame.draw.rect(panel, (*ACCENT, int(alpha * 0.95)), knob, border_radius=4)
 
     btn = pygame.Rect(w // 2 - 60, h - 55, 120, 38)
     mx, my = pygame.mouse.get_pos()
     hover = btn.move(x0, y0).collidepoint(mx, my)
-    color = (80, 80, 100)
+    color = BUTTON_NEUTRAL
     if hover:
-        color = (95, 95, 115)
+        color = tuple(min(c + 15, 255) for c in color)
     pygame.draw.rect(panel, (*color, alpha), btn, border_radius=8)
-    pygame.draw.rect(panel, (110, 110, 130, alpha), btn, 1, border_radius=8)
+    pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, alpha), btn, 1, border_radius=8)
     txt = base_small.render("Close", True, WHITE)
     txt.set_alpha(alpha)
     panel.blit(txt, (btn.centerx - txt.get_width() // 2, btn.centery - txt.get_height() // 2))
@@ -1569,7 +1725,7 @@ def draw_help_dialog():
 
 
 def draw_settings_dialog():
-    global settings_t, settings_slider_rects
+    global settings_t, settings_slider_rects, settings_scroll, settings_scroll_target, settings_scroll_max
     if not settings_open and settings_t <= 0.01:
         return {}
 
@@ -1591,13 +1747,13 @@ def draw_settings_dialog():
     overlay.fill((0, 0, 0, int(120 * settings_t)))
     screen.blit(overlay, (0, 0))
 
-    w, h = 640, 560
+    w, h = 700, 560
     x0 = WIDTH // 2 - w // 2
     y0 = HEIGHT // 2 - h // 2
     scale = 0.92 + 0.08 * ease
     panel = pygame.Surface((w, h), pygame.SRCALPHA)
     pygame.draw.rect(panel, (*PANEL, alpha), (0, 0, w, h), border_radius=14)
-    pygame.draw.rect(panel, (90, 90, 110, alpha), (0, 0, w, h), 2, border_radius=14)
+    pygame.draw.rect(panel, (*DIALOG_BORDER, alpha), (0, 0, w, h), 2, border_radius=14)
 
     title = base_font.render("Settings", True, WHITE)
     title.set_alpha(alpha)
@@ -1607,66 +1763,92 @@ def draw_settings_dialog():
     settings_slider_rects = {}
     mx, my = pygame.mouse.get_pos()
 
-    def draw_toggle(label_text, value, key, row_y):
+    content_rect = pygame.Rect(18, 58, w - 36, h - 126)
+    pygame.draw.rect(panel, (*GRID, int(alpha * 0.35)), content_rect, border_radius=10)
+    pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, int(alpha * 0.75)), content_rect, 1, border_radius=10)
+
+    content_left = content_rect.x + 10
+    content_right = content_rect.right - 12
+    content_w = content_right - content_left
+    settings_scroll_target = clamp(settings_scroll_target, 0.0, settings_scroll_max)
+    settings_scroll += (settings_scroll_target - settings_scroll) * 0.22
+    if abs(settings_scroll - settings_scroll_target) < 0.25:
+        settings_scroll = settings_scroll_target
+
+    row_y = 0
+    row_h = 38
+
+    def draw_toggle(label_text, value, key):
+        nonlocal row_y
         label = base_small.render(label_text, True, WHITE)
         label.set_alpha(alpha)
-        panel.blit(label, (20, row_y))
-        toggle = pygame.Rect(w - 140, row_y - 6, 90, 30)
+        draw_y = content_rect.y + 8 + row_y - int(round(settings_scroll))
+        panel.blit(label, (content_left, draw_y))
+        toggle = pygame.Rect(content_right - 98, draw_y - 4, 90, 30)
         t = anim(key, 1.0 if value else 0.0)
-        tcolor = lerp_color((90, 90, 110), (70, 150, 110), t)
+        tcolor = lerp_color(TOGGLE_OFF, TOGGLE_ON, t)
         pygame.draw.rect(panel, (*tcolor, alpha), toggle, border_radius=16)
-        pygame.draw.rect(panel, (110, 110, 130, alpha), toggle, 1, border_radius=16)
+        pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, alpha), toggle, 1, border_radius=16)
         knob_x = int(toggle.x + lerp(8, 56, t))
         knob = pygame.Rect(knob_x, toggle.y + 5, 24, 20)
-        pygame.draw.rect(panel, (230, 230, 235, alpha), knob, border_radius=10)
-        buttons[key] = toggle.move(x0, y0)
+        pygame.draw.rect(panel, (*TOGGLE_KNOB, alpha), knob, border_radius=10)
+        if toggle.colliderect(content_rect.inflate(-4, -2)):
+            buttons[key] = toggle.move(x0, y0)
+        row_y += row_h
 
-    def draw_slider(label_text, options, current_value, key, row_y):
+    def draw_slider(label_text, options, current_value, key):
+        nonlocal row_y
         label = base_small.render(label_text, True, WHITE)
         label.set_alpha(alpha)
-        panel.blit(label, (20, row_y))
-        track = pygame.Rect(w - 280, row_y + 8, 180, 6)
-        pygame.draw.rect(panel, (80, 80, 95, alpha), track, border_radius=3)
+        draw_y = content_rect.y + 8 + row_y - int(round(settings_scroll))
+        panel.blit(label, (content_left, draw_y))
+        track = pygame.Rect(content_right - 248, draw_y + 10, 180, 6)
+        pygame.draw.rect(panel, (*SLIDER_TRACK, alpha), track, border_radius=3)
         values = [v for v, _ in options]
         labels = [lbl for _, lbl in options]
-        idx = values.index(current_value)
+        idx = min(range(len(values)), key=lambda i: abs(values[i] - current_value))
         t = anim(key, idx / (len(values) - 1) if len(values) > 1 else 0.0)
         knob_x = int(lerp(track.x, track.x + track.w, t))
         knob = pygame.Rect(knob_x - 6, track.y - 6, 12, 18)
-        pygame.draw.rect(panel, (170, 190, 230, alpha), knob, border_radius=6)
+        pygame.draw.rect(panel, (*SLIDER_KNOB, alpha), knob, border_radius=6)
         value_txt = base_small.render(labels[idx], True, GRAY)
         value_txt.set_alpha(alpha)
-        panel.blit(value_txt, (track.x + track.w + 10, row_y))
-        settings_slider_rects[key] = (track.move(x0, y0), options)
+        panel.blit(value_txt, (track.x + track.w + 10, draw_y))
+        if track.colliderect(content_rect.inflate(-4, -2)):
+            settings_slider_rects[key] = (track.move(x0, y0), options)
+        row_y += row_h
 
-    row_y = 70
-    row_h = 32
-    draw_toggle("Straight wires", straight_wires, "toggle_straight", row_y)
-    row_y += row_h
-    draw_toggle("Snap to grid", snap_to_grid, "toggle_snap", row_y)
-    row_y += row_h
-    draw_toggle("Show pins at any zoom", show_pins_always, "toggle_pins", row_y)
-    row_y += row_h
-    draw_toggle("Auto-center on double middle click", auto_center, "toggle_center", row_y)
-    row_y += row_h
-    draw_toggle("Signal delay", signal_delay_enabled, "toggle_signal_delay", row_y)
-    row_y += row_h
-    draw_toggle("Multicolor outputs", multicolor_outputs, "toggle_multicolor", row_y)
-    row_y += row_h + 10
+    prev_clip = panel.get_clip()
+    panel.set_clip(content_rect.inflate(-10, -8))
+    draw_toggle("Light mode (white + yellow)", light_mode, "toggle_light_mode")
+    draw_toggle("Straight wires", straight_wires, "toggle_straight")
+    draw_toggle("Snap to grid", snap_to_grid, "toggle_snap")
+    draw_toggle("Show pins at any zoom", show_pins_always, "toggle_pins")
+    draw_toggle("Auto-center on double middle click", auto_center, "toggle_center")
+    draw_toggle("Signal delay", signal_delay_enabled, "toggle_signal_delay")
+    draw_toggle("Multicolor outputs (RGB)", multicolor_outputs, "toggle_multicolor")
+    row_y += 8
+    draw_slider("Grid size", [(15, "15"), (25, "25"), (35, "35")], grid_step, "grid_size")
+    draw_slider("Zoom min", [(0.3, "0.3"), (0.4, "0.4"), (0.5, "0.5")], zoom_min, "zoom_min")
+    draw_slider("Zoom max", [(2.0, "2.0"), (2.5, "2.5"), (3.0, "3.0")], zoom_max, "zoom_max")
+    draw_slider("Gate label size", [(0.85, "Small"), (1.0, "Normal"), (1.2, "Large")], gate_label_scale, "gate_label")
+    draw_slider("Note font size", [(0.85, "Small"), (1.0, "Normal"), (1.2, "Large")], note_font_scale, "note_font")
+    draw_slider("Selection brightness", [(0.7, "Low"), (1.0, "Med"), (1.3, "High")], selection_brightness, "sel_bright")
+    draw_slider("Wire thickness", [(1.0, "1"), (2.0, "2"), (3.0, "3")], wire_thickness, "wire_thick")
+    panel.set_clip(prev_clip)
 
-    draw_slider("Grid size", [(15, "15"), (25, "25"), (35, "35")], grid_step, "grid_size", row_y)
-    row_y += row_h
-    draw_slider("Zoom min", [(0.3, "0.3"), (0.4, "0.4"), (0.5, "0.5")], zoom_min, "zoom_min", row_y)
-    row_y += row_h
-    draw_slider("Zoom max", [(2.0, "2.0"), (2.5, "2.5"), (3.0, "3.0")], zoom_max, "zoom_max", row_y)
-    row_y += row_h
-    draw_slider("Gate label size", [(0.85, "Small"), (1.0, "Normal"), (1.2, "Large")], gate_label_scale, "gate_label", row_y)
-    row_y += row_h
-    draw_slider("Note font size", [(0.85, "Small"), (1.0, "Normal"), (1.2, "Large")], note_font_scale, "note_font", row_y)
-    row_y += row_h
-    draw_slider("Selection brightness", [(0.7, "Low"), (1.0, "Med"), (1.3, "High")], selection_brightness, "sel_bright", row_y)
-    row_y += row_h
-    draw_slider("Wire thickness", [(1.0, "1"), (2.0, "2"), (3.0, "3")], wire_thickness, "wire_thick", row_y)
+    settings_scroll_max = max(0.0, float(row_y - (content_rect.h - 14)))
+    settings_scroll_target = clamp(settings_scroll_target, 0.0, settings_scroll_max)
+
+    if settings_scroll_max > 1.0:
+        track = pygame.Rect(content_rect.right - 10, content_rect.y + 8, 4, content_rect.h - 16)
+        pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, int(alpha * 0.7)), track, border_radius=2)
+        vis_h = content_rect.h - 14
+        knob_h = max(22, int(track.h * (vis_h / max(vis_h + settings_scroll_max, 1.0))))
+        knob_t = 0.0 if settings_scroll_max <= 0 else (settings_scroll / settings_scroll_max)
+        knob_y = int(lerp(track.y, track.bottom - knob_h, knob_t))
+        knob = pygame.Rect(track.x - 2, knob_y, 8, knob_h)
+        pygame.draw.rect(panel, (*ACCENT, int(alpha * 0.95)), knob, border_radius=4)
 
     # Buttons
     btn_w = 140
@@ -1677,11 +1859,11 @@ def draw_settings_dialog():
     for i, (label, key) in enumerate([("Instructions", "instructions"), ("Close", "close")]):
         rect = pygame.Rect(bx + i * (btn_w + gap), by, btn_w, btn_h)
         hover = rect.move(x0, y0).collidepoint(mx, my)
-        color = (80, 90, 110) if key == "instructions" else (80, 80, 100)
+        color = BUTTON_ACCENT if key == "instructions" else BUTTON_NEUTRAL
         if hover:
-            color = (min(color[0] + 15, 255), min(color[1] + 15, 255), min(color[2] + 15, 255))
+            color = tuple(min(c + 15, 255) for c in color)
         pygame.draw.rect(panel, (*color, alpha), rect, border_radius=8)
-        pygame.draw.rect(panel, (110, 110, 130, alpha), rect, 1, border_radius=8)
+        pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, alpha), rect, 1, border_radius=8)
         txt = base_small.render(label, True, WHITE)
         txt.set_alpha(alpha)
         panel.blit(txt, (rect.centerx - txt.get_width() // 2, rect.centery - txt.get_height() // 2))
@@ -2031,6 +2213,7 @@ def serialize_state():
         "selected_notes": list(selected_note_ids),
         "cam": (cam_x, cam_y, zoom),
         "settings": {
+            "light_mode": light_mode,
             "straight_wires": straight_wires,
             "snap_to_grid": snap_to_grid,
             "zoom_min": zoom_min,
@@ -2051,7 +2234,7 @@ def restore_state(state):
     global gates, selected_gate, selected_ids, selected_note_ids, next_id, cam_x, cam_y, zoom, notes
     global wire_cache, signal_pending
     global straight_wires, snap_to_grid, zoom_min, zoom_max, gate_label_scale, note_font_scale
-    global show_pins_always, selection_brightness, auto_center, wire_thickness, signal_delay_enabled, multicolor_outputs
+    global show_pins_always, selection_brightness, auto_center, wire_thickness, signal_delay_enabled, multicolor_outputs, light_mode
     gates = []
     notes = []
     max_id = 0
@@ -2096,6 +2279,8 @@ def restore_state(state):
     selected_note_ids = set(state.get("selected_notes", []))
     cam_x, cam_y, zoom = state.get("cam", (cam_x, cam_y, zoom))
     settings = state.get("settings", {})
+    light_mode = settings.get("light_mode", light_mode)
+    apply_theme()
     straight_wires = settings.get("straight_wires", straight_wires)
     snap_to_grid = settings.get("snap_to_grid", snap_to_grid)
     zoom_min = settings.get("zoom_min", zoom_min)
@@ -2157,6 +2342,8 @@ def new_file():
     global clock_menu_open, clock_menu_t, clock_menu_target, clock_menu_gate_id
     global delay_menu_open, delay_menu_t, delay_menu_target, delay_menu_gate_id
     global settings_open, settings_t, settings_target, settings_toggle_t
+    global settings_scroll, settings_scroll_target, settings_scroll_max
+    global help_scroll, help_scroll_target, help_scroll_max
     global is_dragging, _drag_gate, _drag_pending, _drag_snapshot, _drag_group_start, _drag_note_snapshot
     global _drag_note_pending, _drag_note, _drag_note_group_start
     global preview_t, pan_pending, panning, pan_moved, held_button_gate_id
@@ -2205,11 +2392,17 @@ def new_file():
     help_open = False
     help_t = 0.0
     help_target = 0.0
+    help_scroll = 0.0
+    help_scroll_target = 0.0
+    help_scroll_max = 0.0
     settings_open = False
     settings_t = 0.0
     settings_target = 0.0
     settings_toggle_t = 0.0
     settings_drag_slider = None
+    settings_scroll = 0.0
+    settings_scroll_target = 0.0
+    settings_scroll_max = 0.0
     confirm_open = False
     confirm_t = 0.0
     confirm_target = 0.0
@@ -2543,6 +2736,8 @@ while True:
             if event.key == pygame.K_TAB:
                 settings_open = True
                 settings_target = 1.0
+                settings_scroll = 0.0
+                settings_scroll_target = 0.0
             if event.key == pygame.K_s and (pygame.key.get_mods() & pygame.KMOD_CTRL):
                 save_scope_open = True
                 save_scope_target = 1.0
@@ -2579,6 +2774,14 @@ while True:
                 selected_ids.clear()
 
         if event.type == pygame.MOUSEWHEEL:
+            if help_open:
+                help_scroll_target -= event.y * 42
+                help_scroll_target = clamp(help_scroll_target, 0.0, help_scroll_max)
+                continue
+            if settings_open:
+                settings_scroll_target -= event.y * 42
+                settings_scroll_target = clamp(settings_scroll_target, 0.0, settings_scroll_max)
+                continue
             if event.y > 0:
                 apply_zoom(1.1, pygame.mouse.get_pos())
             elif event.y < 0:
@@ -2743,6 +2946,9 @@ while True:
                         show_pins_always = not show_pins_always
                     elif buttons.get("toggle_center") and buttons["toggle_center"].collidepoint(event.pos):
                         auto_center = not auto_center
+                    elif buttons.get("toggle_light_mode") and buttons["toggle_light_mode"].collidepoint(event.pos):
+                        light_mode = not light_mode
+                        apply_theme()
                     elif buttons.get("toggle_signal_delay") and buttons["toggle_signal_delay"].collidepoint(event.pos):
                         signal_delay_enabled = not signal_delay_enabled
                         if not signal_delay_enabled:
@@ -2757,6 +2963,8 @@ while True:
                         settings_drag_slider = None
                         help_open = True
                         help_target = 1.0
+                        help_scroll = 0.0
+                        help_scroll_target = 0.0
                     elif buttons.get("close") and buttons["close"].collidepoint(event.pos):
                         settings_target = 0.0
                         settings_open = False
