@@ -1,7 +1,7 @@
 # Logical
 Logical is a Logic gate simulator, made to be a minimalistic, easy-to-use software. oh yeah, and its free.
 
-I made this because i was looking for a good logic ciruit simulator, the closest one i could find was logicly. i names logical after this, because im kinda uncreative. so sue me. but i didnt want to pay $60 for this, and the web version didnt have save/load function. so i made one. in my opinion, it looks way better then logicly.
+I made this because i was looking for a good logic ciruit simulator, the closest one i could find was logicly. i named logical after this, because im kinda uncreative. so sue me. but i didnt want to pay $60 for this, and the web version didnt have save/load function. so i made one. in my opinion, it looks way better then logicly.
 
 ------
 # IMPORTANT!!! Install Instructions
