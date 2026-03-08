@@ -16,9 +16,9 @@ I made this because i was looking for a good logic ciruit simulator, the closest
 
 **controlls**
 
-- Mouse left click on pins: connect wires
+- left click on pins: connect wires
 
-- Mouse right click on a gate/note/input pin: delete gate/note or clear that input wire
+- right click on a gate/note/input pin: delete gate/note or clear that input wire
 
 - Mouse wheel: zoom in/out
 
