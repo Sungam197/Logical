@@ -1,0 +1,12 @@
+EXE script
+powershell -ExecutionPolicy Bypass -File "C:\Programs\Python\Logical\Build Scrips\build_exe.ps1"
+
+Installer script
+powershell -ExecutionPolicy Bypass -File "C:\Programs\Python\Logical\Build Scrips\build_installer.ps1" -SkipExeBuild
+
+Updater script
+powershell -ExecutionPolicy Bypass -File "C:\Programs\Python\Logical\Build Scrips\build_updater.ps1" -SkipExeBuild
+
+All 3 scripts
+powershell -ExecutionPolicy Bypass -File "C:\Programs\Python\Logical\Build Scrips\build_exe.ps1"; powershell -ExecutionPolicy Bypass -File "C:\Programs\Python\Logical\Build Scrips\build_installer.ps1" -SkipExeBuild; powershell -ExecutionPolicy Bypass -File "C:\Programs\Python\Logical\Build Scrips\build_updater.ps1" -SkipExeBuild
+
