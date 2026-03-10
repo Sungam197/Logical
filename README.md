@@ -10,7 +10,9 @@ I made this because i was looking for a good logic ciruit simulator, the closest
 - go to releases, and pick the latest one.
 - if you dont have the software yet, download the installer.
 - if you have the software already, downlaod the updater.
-- preeety self explanatory from there...
+- extract witchever one you downloaded
+- launch the exe inside the folder
+- congratulations.
 
 ------
 
