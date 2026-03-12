@@ -45,10 +45,13 @@ def setup(manager):
         scale_y = (gate.h / 160) * zoom
         
         for i in range(min(len(gate.inputs), len(segments))):
-            conn_id = gate.inputs[i]
+            conn = gate.inputs[i]
             is_on = False
-            if conn_id is not None and conn_id in Logical.gates_by_id_map:
-                is_on = Logical.gates_by_id_map[conn_id].output
+            
+            # Use the simulator's built-in function to get the output state
+            # This correctly handles both integer IDs and (ID, index) tuples
+            if conn is not None and hasattr(Logical, 'gates_by_id_map'):
+                is_on = Logical.conn_output_state(conn, Logical.gates_by_id_map)
             
             seg_color = (255, 50, 50) if is_on else (50, 20, 20)
             
