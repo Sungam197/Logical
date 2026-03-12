@@ -55,11 +55,11 @@ def patch_code(c):
     # E. Rects
     c = c.replace("return pygame.Rect(self.x - 40, self.y - 25, 80, 50)", 
                   "return pygame.Rect(self.x - self.w / 2, self.y - self.h / 2, self.w, self.h)")
-    c = c.replace("w = 80 * scale\n        h = 50 * scale", 
-                  "w = self.w * scale\n        h = self.h * scale")
+    c = c.replace("w = 80 * scale\n            h = 50 * scale", 
+                  "w = self.w * scale\n            h = self.h * scale")
     
     # F. Obstacles
-    c = c.replace("r = pygame.Rect(gg.draw_x - 40, gg.draw_y - 25, 80, 50)",
+    c = c.replace("r = pygame.Rect(gg.draw_x - r.w / 2, gg.draw_y - r.h / 2, r.w, r.h)",
                   "r = pygame.Rect(gg.draw_x - gg.w / 2, gg.draw_y - gg.h / 2, gg.w, gg.h)")
     
     # K. Pin Positions
@@ -118,8 +118,8 @@ def patch_code(c):
                   '        if self.type in mod_manager.gate_registry:\n            vals = []\n            for i in range(len(self.inputs)):\n                conn = self.inputs[i]\n                vals.append(gates_by_id[conn].output if (conn is not None and conn in gates_by_id) else False)\n            self.output = mod_manager.gate_registry[self.type]["eval"](vals)\n            return\n        if self.type in ("INPUT", "BUTTON", "CLOCK"):')
     
     # F2. compute_gate_output patch for eval_all loop
-    compute_target = '    if g.type == "XNOR":\n        return vals[0] == vals[1]\n    return g.output'
-    compute_replace = '    if g.type == "XNOR":\n        return vals[0] == vals[1]\n    if g.type in mod_manager.gate_registry:\n        return mod_manager.gate_registry[g.type]["eval"](vals)\n    return g.output'
+    compute_target = '    if g.type == "XNOR":\n        return sum(1 for v in vals if v) != 1\n    return g.output'
+    compute_replace = '    if g.type == "XNOR":\n        return sum(1 for v in vals if v) != 1\n    if g.type in mod_manager.gate_registry:\n        return mod_manager.gate_registry[g.type]["eval"](vals)\n    return g.output'
     c = c.replace(compute_target, compute_replace)
     
     # G. Draw hooks
@@ -165,90 +165,27 @@ def draw_mod_menu(pos_screen):
 '''
     c = c.replace('def draw_gate_menu(pos_screen):', mod_menu_logic + 'def draw_gate_menu(pos_screen):')
 
-    old_bottom_btn = """    note_w = item_w
-    note_h = item_h // 2
-    note_x = x0 + (total_w - (note_w * 2 + pad)) // 2
-    note_y = y0 + total_h + pad + 8
-    note_rect = pygame.Rect(note_x, note_y, note_w, note_h)
-    clock_rect = pygame.Rect(note_x + note_w + pad, note_y, note_w, note_h)
-    note_alpha = int(255 * menu_t)
-    note_hover = note_rect.collidepoint(mx, my)
-    note_color = MENU_TILE if not note_hover else MENU_TILE_HOVER
-    note_tile = pygame.Surface((note_rect.w, note_rect.h), pygame.SRCALPHA)
-    pygame.draw.rect(note_tile, (*note_color, note_alpha), note_tile.get_rect(), border_radius=10)
-    pygame.draw.rect(note_tile, (*MENU_BORDER, note_alpha), note_tile.get_rect(), 1, border_radius=10)
-    note_label = base_small.render("NOTE", True, WHITE)
-    note_label.set_alpha(note_alpha)
-    note_tile.blit(
-        note_label,
-        (note_rect.w // 2 - note_label.get_width() // 2, note_rect.h // 2 - note_label.get_height() // 2),
-    )
-    screen.blit(note_tile, note_rect.topleft)
-    items.append(("NOTE", note_rect))
+    # H2. Inject 'MODS' button above the vanilla gates menu
+    target_custom = '    items.append(("CUSTOM_MENU", custom_rect))\n\n    return items'
+    replace_custom = '''    items.append(("CUSTOM_MENU", custom_rect))
 
-    clock_hover = clock_rect.collidepoint(mx, my)
-    clock_color = MENU_TILE if not clock_hover else MENU_TILE_HOVER
-    clock_tile = pygame.Surface((clock_rect.w, clock_rect.h), pygame.SRCALPHA)
-    pygame.draw.rect(clock_tile, (*clock_color, note_alpha), clock_tile.get_rect(), border_radius=10)
-    pygame.draw.rect(clock_tile, (*MENU_BORDER, note_alpha), clock_tile.get_rect(), 1, border_radius=10)
-    clock_label = base_small.render("CLOCK", True, WHITE)
-    clock_label.set_alpha(note_alpha)
-    clock_tile.blit(
-        clock_label,
-        (clock_rect.w // 2 - clock_label.get_width() // 2, clock_rect.h // 2 - clock_label.get_height() // 2),
-    )
-    screen.blit(clock_tile, clock_rect.topleft)
-    items.append(("CLOCK", clock_rect))"""
+    # MODS Button
+    mods_w = 120
+    mods_h = 36
+    mods_rect = pygame.Rect(x0 + total_w // 2 - mods_w // 2, y0 - mods_h - pad - 8, mods_w, mods_h)
+    mods_hover = mods_rect.collidepoint(mx, my)
+    mods_color = MENU_TILE if not mods_hover else MENU_TILE_HOVER
+    mods_tile = pygame.Surface((mods_rect.w, mods_rect.h), pygame.SRCALPHA)
+    pygame.draw.rect(mods_tile, (*mods_color, note_alpha), mods_tile.get_rect(), border_radius=10)
+    pygame.draw.rect(mods_tile, (*MENU_BORDER, note_alpha), mods_tile.get_rect(), 1, border_radius=10)
+    mods_label = base_small.render("MODS", True, WHITE)
+    mods_label.set_alpha(note_alpha)
+    mods_tile.blit(mods_label, (mods_rect.w // 2 - mods_label.get_width() // 2, mods_rect.h // 2 - mods_label.get_height() // 2))
+    screen.blit(mods_tile, mods_rect.topleft)
+    items.append(("MODS", mods_rect))
 
-    new_bottom_btn = """    bx, by = x0 + (total_w - (item_w*3+pad*2)) // 2, y0 + total_h + pad + 8
-    alpha_bottom = int(255 * menu_t)
-    for i, lbl in enumerate(["MODS", "NOTE", "CLOCK"]):
-        rect = pygame.Rect(bx + i*(item_w+pad), by, item_w, item_h//2)
-        hover = rect.collidepoint(mx, my)
-        tile = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
-        pygame.draw.rect(tile, (*(MENU_TILE_HOVER if hover else MENU_TILE), alpha_bottom), tile.get_rect(), border_radius=10)
-        pygame.draw.rect(tile, (*MENU_BORDER, alpha_bottom), tile.get_rect(), 1, border_radius=10)
-        txt = base_small.render(lbl, True, WHITE); txt.set_alpha(alpha_bottom)
-        tile.blit(txt, (rect.w//2 - txt.get_width()//2, rect.h//2 - txt.get_height()//2))
-        screen.blit(tile, rect.topleft); items.append((lbl, rect))"""
-
-    c = c.replace(old_bottom_btn, new_bottom_btn)
-    
-    mod_menu_logic = r'''
-mod_menu_open = False
-mod_menu_t = 0.0
-mod_menu_pos = (0, 0)
-mod_menu_target = 0.0
-
-def draw_mod_menu(pos_screen):
-    global mod_menu_t, mod_menu_open
-    if not mod_menu_open and mod_menu_t <= 0.01: return []
-    mod_menu_t += (mod_menu_target - mod_menu_t) * 0.2
-    if mod_menu_t < 0.01: mod_menu_t = 0.0
-    if mod_menu_t > 0.99: mod_menu_t = 1.0
-    gate_names = list(mod_manager.gate_registry.keys())
-    if not gate_names: mod_menu_open = False; return []
-    items, cols, item_w, item_h, pad = [], 3, 150, 80, 10
-    rows = math.ceil(len(gate_names) / cols)
-    total_w, total_h = cols * item_w + (cols - 1) * pad, rows * item_h + (rows - 1) * pad
-    x0, y0 = pos_screen; x0, y0 = min(max(20, x0 - total_w // 2), WIDTH - total_w - 20), min(max(20, y0 - total_h // 2), HEIGHT - total_h - 20)
-    alpha = int(220 * mod_menu_t); panel = pygame.Surface((total_w + 20, total_h + 20), pygame.SRCALPHA)
-    pygame.draw.rect(panel, (*PANEL, alpha), (0, 0, total_w + 20, total_h + 20), border_radius=12)
-    pygame.draw.rect(panel, (*DIALOG_BORDER_SOFT, alpha), (0, 0, total_w + 20, total_h + 20), 1, border_radius=12)
-    screen.blit(panel, (x0 - 10, y0 - 10)); mx, my = pygame.mouse.get_pos()
-    for i, gname in enumerate(gate_names):
-        r, c = i // cols, i % cols; rect = pygame.Rect(x0 + c*(item_w+pad), y0 + r*(item_h+pad), item_w, item_h)
-        t = max(0.0, min(1.0, (mod_menu_t - (i * 0.06)) / 0.4)); ease = t * t * (3 - 2 * t); alpha_item = int(255 * ease)
-        draw_rect = rect.move(0, int((1.0 - ease) * 16)); hover = draw_rect.collidepoint(mx, my)
-        tile = pygame.Surface((rect.w, rect.h), pygame.SRCALPHA)
-        pygame.draw.rect(tile, (*(MENU_TILE_HOVER if hover else MENU_TILE), alpha_item), tile.get_rect(), border_radius=10)
-        pygame.draw.rect(tile, (*MENU_BORDER, alpha_item), tile.get_rect(), 1, border_radius=10)
-        lbl = base_small.render(gname, True, WHITE); lbl.set_alpha(alpha_item)
-        tile.blit(lbl, (rect.w//2 - lbl.get_width()//2, rect.h//2 - lbl.get_height()//2))
-        screen.blit(tile, draw_rect.topleft); items.append((gname, draw_rect))
-    return items
-'''
-    c = c.replace('def draw_gate_menu(pos_screen):', mod_menu_logic + 'def draw_gate_menu(pos_screen):')
+    return items'''
+    c = c.replace(target_custom, replace_custom)
 
     # I. Hooks & Event Handling
     event_replace = r'''            if menu_open:
