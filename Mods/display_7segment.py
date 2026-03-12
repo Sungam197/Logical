@@ -23,19 +23,6 @@ def setup(manager):
         if gate.type != "7SEG":
             return
 
-        # Get the logical values of the 7 inputs
-        # gate.inputs contains IDs of connected gates
-        # We need their current output state
-        # In Logical.py, gate.eval() stores the result in gate.output
-        # But we need the value of EACH input.
-        # However, the simulator computes these in eval_all.
-        # Let's assume we can access the connected gates' output.
-        # Wait, I should've passed gates_by_id or the states to on_draw.
-        # Actually, let's look at how evaluation is done.
-        
-        # For simplicity in this example, let's assume we can access global 'gates_by_id' 
-        # or if we are in the draw loop, the evaluation for this frame is already done.
-        # But wait, the display 'inputs' are IDs.
         
         # Import the global gate map from the main script
         import Logical
@@ -72,3 +59,4 @@ def setup(manager):
         print("7SEG Mod Initialized!")
         
     manager.add_hook("on_init", on_init)    
+
